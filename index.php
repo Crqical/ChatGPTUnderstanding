@@ -42,7 +42,23 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
             // Process the document content
             $text = '';
             $headings = false;
-            $images = false;
+
+          
+          $images = false;
+$imageCount = 0;
+foreach ($content as $element) {
+    if ($element->getParagraph()) {
+        foreach ($element->getParagraph()->getElements() as $paragraphElement) {
+            if ($paragraphElement->getInlineObjectElement() || ($paragraphElement->getTextRun() && strpos($paragraphElement->getTextRun()->getContent(), '<img') !== false)) {
+                $images = true;
+                $imageCount++;
+                break;
+            }
+        }
+    }
+}
+
+          
             foreach ($content as $element) {
                 if ($element->getParagraph()) {
                     foreach ($element->getParagraph()->getElements() as $element) {
@@ -51,18 +67,30 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
                         }
                         $headings = true;
                     }
-                    if ($element->getInlineObjectElement()) {
-                        $images = true;
-                    }
+                  
                 }
             }
 
+
+
           
+$titleExists = false;
+foreach ($content as $element) {
+    if ($element->getParagraph() && $element->getParagraph()->getParagraphStyle()) {
+        $paragraphStyle = $element->getParagraph()->getParagraphStyle();
+        if ($paragraphStyle->getNamedStyleType() === 'TITLE') {
+            $titleExists = true;
+            break;
+        }
+    }
+}        
             // Count the words
             $wordCount = str_word_count($text);
 
             // Display word count, headings, and image count
             echo "Total number of words: " . $wordCount . "<br>";
+          echo "Number of images: " . $imageCount . "<br>";
+
             if ($wordCount < 100) {
                 echo "There needs to be at least 100 words, you have " . $wordCount . "<br>";
             } else {
@@ -92,12 +120,24 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
                 echo "The specific word 'benrud' is not found in the document<br>";
             }
 
+          if ($titleExists) {
+    $counting++;
+} else {
+    echo "There is no title in the document<br>";
+}
 
 
           
             echo '<label for="file"></label>
-<progress id="file" value="'.$counting.'" max="4">32%</progress>';
-        
+<progress id="file" value="'.$counting.'" max="5">32%</progress>';
+
+          If($counting == 5) {
+            echo "A+ FOR YOU. You are SMART BOI";
+          } else {
+            echo "YOU DO NOT GET a A+ GET BETTER LOOSER";
+          }
+
+          
             echo "<hr>"; // Add a horizontal rule
 
           
