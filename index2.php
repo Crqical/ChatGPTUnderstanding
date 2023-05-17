@@ -1,6 +1,6 @@
 <?php
 require_once 'vendor/autoload.php';
-// WORKING
+// WORKING ABD FIXED
 session_start();
 
 $client = new Google_Client();
