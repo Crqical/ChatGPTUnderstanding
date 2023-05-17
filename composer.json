@@ -1,0 +1,11 @@
+{
+    "name": "runner/documenter",
+    "autoload": {
+        "psr-4": {
+            "Runner\\Documenter\\": "src/"
+        }
+    },
+    "require": {
+        "google/apiclient": "^2.0"
+    }
+}
