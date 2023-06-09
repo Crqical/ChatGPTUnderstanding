@@ -59,39 +59,35 @@ if (isset($_GET['id']) && isset($_SESSION['docName'])) {
                                 <header class="major">
                                     <h2>Documents</h2>
                                 </header>
-                                <p><!DOCTYPE html>
+                           <!DOCTYPE html>
 <html>
 <head>
     <title>Document Evaluator</title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-       $(document).ready(function(){
-    var i = 1;
-    $('#add').click(function(){
-        i++;
-        $('#questions').append('<input type="text" name="questions[]" placeholder="Enter question '+i+'" required><br>');
-    });
-});
-
+        $(document).ready(function(){
+            var i = 1;
+            $('#add').click(function(){
+                i++;
+                $('#questions').append('<input type="text" name="question'+i+'" placeholder="Enter question '+i+'" required><br>');
+            });
+        });
     </script>
 </head>
 <body>
   <h1>Google Documents</h1>
   <p>Document Name:</p>
 
-    <input type="text" id="COOLNAME" name="COOLNAME" value="<?= isset($_SESSION['docName']) ? $_SESSION['docName'] : '' ?>"><br>
+    <input type="text" id="docName" name="docName" value="<?= isset($_SESSION['docName']) ? $_SESSION['docName'] : '' ?>"><br>
     <p>Document URL:</p>
 
-    <input type="text" id="COOLNAME" name="COOLNAME" value="<?= isset($_GET['id']) ? $_GET['id'] : '' ?>"><br>
-
+    <input type="text" id="docId" name="docId" value="<?= isset($_GET['id']) ? $_GET['id'] : '' ?>"><br>
 
  <p>Each Question Points:</p>
 
-    <input type="text" id="COOLNAME" name="COOLNAME" value="10">
+    <input type="text" id="points" name="points" value="10">
   
   <hr>
-
-  
 
     <form action="grade.php" method="post">
         <input type="hidden" name="docId" value="<?= isset($_GET['id']) ? $_GET['id'] : '' ?>">
@@ -107,6 +103,7 @@ if (isset($_GET['id']) && isset($_SESSION['docName'])) {
     </form>
 </body>
 </html>
+
 
 </p>
                                 <ul class="actions">

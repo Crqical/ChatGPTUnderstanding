@@ -36,7 +36,7 @@ $questions = '';
 $questionMap = [];
 $questionNumber = 1;
 foreach ($_POST as $key => $value) {
-    if (strpos($key, 'question') === 0) {
+    if (strpos($key, 'question') !== false) {
         $questions .= '(' . $value . '), ';
         $questionMap[$questionNumber] = $value;
         $questionNumber++;
@@ -45,9 +45,10 @@ foreach ($_POST as $key => $value) {
 $questions = rtrim($questions, ', ');
 
 // Collect the prompt from POST
-$prompt = isset($_POST['prompt']) ? $_POST['prompt'] : '';
+$prompt = isset($_POST['prompt']) ? $_POST['prompt'] . ' ' . $questions : '';
 
-$apiKey = "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";
+
+$apiKey = "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";
 $model = "text-davinci-003";
 $temperature = 0.7;
 $maxTokens = 256;
@@ -90,7 +91,7 @@ if (isset($jsonResponse['choices']) && count($jsonResponse['choices']) > 0 && is
     $generatedText = $jsonResponse['choices'][0]['text'];
 
     // Extract the scores from the generated text
-    $pattern = '/Question (\d+) \/ Score: (\d+)/';
+$pattern = '/Question (\d+) \/ Score: (\d{1,2})/';
     preg_match_all($pattern, $generatedText, $matches, PREG_SET_ORDER);
 
     // Display the Chat GPT response
@@ -112,5 +113,7 @@ if (isset($jsonResponse['choices']) && count($jsonResponse['choices']) > 0 && is
 
 curl_close($ch);
 ?>
+<hr>
 
 <p>Prompt: <?php echo $prompt; ?></p>
+<?php var_dump($_POST); ?>
