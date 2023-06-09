@@ -4,25 +4,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Make sure docName is set in the session
-if (isset($_SESSION['docName'])) {
-    $docName = $_SESSION['docName'];
-    // Now you can use $docName in this script
-} else {
-    echo "No document name found in session.";
-    exit();
-}
 
-// Parse JSON file
-$jsonContent = file_get_contents($docName . ".json");
-if ($jsonContent === false) {
-    die('Error reading JSON file');
-}
-
-$data = json_decode($jsonContent, true);
-if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
-    die('Error parsing JSON file');
-}
 
 // Set a threshold for the ratio of content length between two revisions
 // If the content length ratio is greater than the threshold, it may indicate copy-pasting
