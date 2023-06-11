@@ -115,5 +115,23 @@ curl_close($ch);
 ?>
 <hr>
 
-<p>Prompt: <?php echo $prompt; ?></p>
-<?php var_dump($_POST); ?>
+<!-- Adding the button and container for the output -->
+<button onclick="showInfo()">Show Info</button>
+<div id="infoContainer" style="display:none;">
+    <p>Prompt: <?php echo htmlspecialchars($prompt, ENT_QUOTES, 'UTF-8'); ?></p>
+    <pre><?php echo htmlspecialchars(var_export($_POST, true), ENT_QUOTES, 'UTF-8'); ?></pre>
+    <p>Current content:</p>
+    <pre><?php echo htmlspecialchars($content, ENT_QUOTES, 'UTF-8'); ?></pre>
+</div>
+
+<!-- JavaScript function to show/hide the info -->
+<script>
+function showInfo() {
+    var infoContainer = document.getElementById('infoContainer');
+    if (infoContainer.style.display === 'none') {
+        infoContainer.style.display = 'block';
+    } else {
+        infoContainer.style.display = 'none';
+    }
+}
+</script>

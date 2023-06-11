@@ -6,6 +6,7 @@ $client = new Google_Client();
 $client->setAuthConfig('client_secrets.json');  // Path to your client_secrets.json file
 $client->addScope(Google_Service_Drive::DRIVE_METADATA_READONLY);
 $client->addScope(Google_Service_Docs::DOCUMENTS_READONLY);
+$client->addScope(Google_Service_Sheets::SPREADSHEETS_READONLY);
 $client->setRedirectUri('http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php');  // Path to your OAuth 2.0 callback file
 
 if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
@@ -14,8 +15,8 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
 
     // Query to get Google Documents owned by the user
     $optParams = array(
-        'q' => "'me' in owners and mimeType='application/vnd.google-apps.document'",
-        'fields' => 'files(id, name)',
+    'q' => "'me' in owners and mimeType='application/vnd.google-apps.document'",
+      'fields' => 'files(id, name)',
     );
 
     $results = $driveService->files->listFiles($optParams);
@@ -121,7 +122,35 @@ echo "<a href='keepers.php?url=" . $file->getId() . "' class='button next'>Analy
     $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php';  // Path to your OAuth 2.0 callback file
     header('Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL));
 }
+
+
 ?>
+
+<h1>Google Sheets</h1>
+<?php 
+// Query to get Google Sheets owned by the user
+    $optParams = array(
+        'q' => "'me' in owners and mimeType='application/vnd.google-apps.spreadsheet'",
+        'fields' => 'files(id, name)',
+    );
+
+    $results = $driveService->files->listFiles($optParams);
+
+    if (count($results->getFiles()) == 0) {
+        print "No Google Sheets found.\n";
+    } else {
+        foreach ($results->getFiles() as $file) {
+            printf("Sheet: %s (%s)<br>", $file->getName(), $file->getId());
+echo "<a href='sheetss.php?url=" . $file->getId() . "&name=" . urlencode($file->getName()) . "' class='button next'>Analyze</a>";
+            echo "<hr>";
+        }
+    } // <- This closing brace was missing
+
+?>
+
+
+
+                    
 </p>
 									<ul class="actions">
 									</ul>

@@ -2,7 +2,7 @@
 session_start();
 
 // Set the default prompt value
-$defaultPrompt = "I want you to ACT like a High School English Teacher. Your purpose is to look at the questions I have provided you and score it through 1-10. 1 meaning the questions were not answered, and 10 meaning the student correctly answered the question. Please make sure it is accurate, and to remove points if any information is incorrect, this can be from dates/times/locations/etc. I would like you to be very strict, and base your grading on the explanation and detail provided. As well as removing points if there is anything that doesnt belong there. Please be as strict as possible, make sure it answers the question and has ALL OF THE INFORMATION NEEDED TO GET A GOOD SCORE, ANY GIBERISH, as well AS REMOVING POINTS IF THERE IS ANY ERRORS IN THE text. I want you to read the paragraph/essay and come back with a score of each question. In your response, I want it to be in this format. Question 1 / Score: .";
+$defaultPrompt = "I want you to ACT like a High School Math Teacher. Your purpose is to look at the sheets information I have provided you and score it through 1-10 through the questions I have given you. 1 meaning the questions were not answered, and 10 meaning the student correctly answered the question. Please make sure it is accurate, and to remove points if any information is incorrect, this can be from inaccurate values, inaccurate equations. I would like you to be very strict, and base your grading on the equations and numbers  provided. As well as removing points if there is anything that doesnt belong there. Please be as strict as possible, make sure it answers the question and has ALL OF THE INFORMATION NEEDED TO GET A GOOD SCORE, ANY GIBERISH, as well AS REMOVING POINTS IF THERE IS ANY ERRORS IN THE equations/ numbers. I want you to read the equations/results and come back with a score of each question. In your response, Only look at the question if it has Parentheses  and the question inside, for example (quesiton)  .";
 
 // Check if the form is submitted to update the prompt
 if (isset($_POST['update_prompt'])) {
@@ -13,9 +13,9 @@ if (isset($_POST['update_prompt'])) {
 }
 
 // Check that both the URL and docName are set
-if (isset($_GET['id']) && isset($_SESSION['docName'])) {
-    $docId = $_GET['id'];
-    $docName = $_SESSION['docName'];
+if (isset($_GET['url']) && isset($_GET['name'])) {
+    $docId = $_GET['url'];
+    $docName = $_GET['name'];
 }
 ?>
 
@@ -57,12 +57,12 @@ if (isset($_GET['id']) && isset($_SESSION['docName'])) {
                         <section id="two">
                             <div class="inner">
                                 <header class="major">
-                                    <h2>Documents</h2>
+                                    <h2>Sheets</h2>
                                 </header>
                            <!DOCTYPE html>
 <html>
 <head>
-    <title>Document Evaluator</title>
+    <title>Sheets Evaluator</title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
         $(document).ready(function(){
@@ -75,13 +75,13 @@ if (isset($_GET['id']) && isset($_SESSION['docName'])) {
     </script>
 </head>
 <body>
-  <h1>Google Documents</h1>
-  <p>Document Name:</p>
+  <h1>Google Sheets</h1>
+  <p>Sheets Name:</p>
 
-    <input type="text" id="docName" name="docName" value="<?= isset($_SESSION['docName']) ? $_SESSION['docName'] : '' ?>"><br>
-    <p>Document URL:</p>
+    <input type="text" id="docName" name="docName" value="<?= isset($_GET['name']) ? $_GET['name'] : '' ?>"><br>
+    <p>Sheets URL:</p>
 
-    <input type="text" id="docId" name="docId" value="<?= isset($_GET['id']) ? $_GET['id'] : '' ?>"><br>
+    <input type="text" id="docId" name="docId" value="<?= isset($_GET['url']) ? $_GET['url'] : '' ?>"><br>
 
  <p>Each Question Points:</p>
 
@@ -92,8 +92,8 @@ if (isset($_GET['id']) && isset($_SESSION['docName'])) {
     <input type="text" id="statement" name="statement" value="What?(Words)(Images)(Word Number)">
   <hr>
 
-    <form action="grade.php" method="post">
-        <input type="hidden" name="docId" value="<?= isset($_GET['id']) ? $_GET['id'] : '' ?>">
+<form action="sheetgrade.php?url=<?php echo $docId; ?>" method="post">
+  <input type="hidden" name="docId" value="<?= isset($_GET['id']) ? $_GET['id'] : '' ?>">
         <input type="hidden" name="docName" value="<?= isset($_SESSION['docName']) ? $_SESSION['docName'] : '' ?>">
         <p>Prompt:</p>
         <textarea id="prompt" name="prompt" rows="6" cols="50"><?= isset($_SESSION['prompt']) ? $_SESSION['prompt'] : '' ?></textarea><br>
@@ -123,13 +123,13 @@ if (isset($_GET['id']) && isset($_SESSION['docName'])) {
                             
                                 <div class="field half">
     <label for="name">Entire URL:</label>
-    <input type="text" name="name" id="name" value="https://docs.google.com/document/d/<?= isset($_GET['id']) ? $_GET['id'] : '' ?>/edit" />
+    <input type="text" name="name" id="name" value="https://docs.google.com/spreadsheets/d/<?= isset($_GET['url']) ? $_GET['url'] : '' ?>/edit" />
 </div><br>
 
 <ul class="actions">
     <li>
-        <form action="https://docs.google.com/document/d/<?= isset($_GET['id']) ? $_GET['id'] : '' ?>/edit" method="GET" target="_blank">
-            <input type="submit" value="Go to DOC" class="primary" />
+        <form action="https://docs.google.com/spreadsheets/d/<?= isset($_GET['url']) ? $_GET['url'] : '' ?>/edit" method="GET" target="_blank">
+            <input type="submit" value="Go to SHEETS" class="primary" />
         </form>
     </li>
 </ul>
