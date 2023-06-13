@@ -75,10 +75,10 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
         }
 
         // API Key, Model name, and related configurations
-        $apiKey = "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";
+        $apiKey = "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";
         $model = "text-davinci-003";
         $temperature = 0.7;
-        $maxTokens = 20000;
+        $maxTokens = 256;
         $topP = 1;
         $frequencyPenalty = 0;
         $presencePenalty = 0;

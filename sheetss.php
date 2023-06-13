@@ -115,9 +115,9 @@ if (isset($_GET['url']) && isset($_GET['name'])) {
                         <div id="questions">
                             <input type="text" name="question1" placeholder="Enter question 1" required><br>
                             <select name="operator1">
-                                <option value="<">Less Than< </option>
-                                <option value=">">Greater than </option>
-                                <option value="=">Equal to = </option>
+                                <option value="<">Less Than</option>
+                                <option value=">">Greator Than </option>
+                                <option value="==">Equal to  </option>
                             </select>
                            <select name="compareValue1" placeholder="Comparison Value" width="100px">
                                 <option value="1">1</option>
@@ -148,7 +148,7 @@ $(document).ready(function() {
 });
 </script>
 
-<button id="add">Add Question</button>
+
 <div id="questions"></div>
 
 

@@ -81,7 +81,7 @@ if (isset($_GET['id']) && isset($_SESSION['docName'])) {
     file_put_contents($file, $json);
 
     // Redirect to checker.php
-    header('Location: scorer.php?id='.$docId);
+header('Location: scorer.php?id=' . $docId . '&name=' . urlencode($docName));
     exit();  // Add this line
 }
 ?>
