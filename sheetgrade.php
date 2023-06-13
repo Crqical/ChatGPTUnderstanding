@@ -31,51 +31,54 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
             die("Error: No data found.\n");
         }
 
-        if (!empty($_POST)) {
-            $prompt = isset($_POST['prompt']) ? $_POST['prompt'] : '';
+        $prompt = $_POST['prompt'] ?? '';  // Use null coalescing operator for cleaner syntax
+        if (!empty($prompt)) {
             echo "<h2>Prompt:</h2>";
             echo "<p>" . htmlspecialchars($prompt) . "</p>";
+        }
 
-            $questions = '';
-            $questionMap = [];
-            $questionNumber = 1;
-            foreach ($_POST as $key => $value) {
-                if (strpos($key, 'question') !== false) {
-                    $questions .= '(' . $value . '), ';
-                    $questionMap[$questionNumber] = [
-                        'question' => $value,
-                        'operator' => isset($_POST["operator{$questionNumber}"]) ? $_POST["operator{$questionNumber}"] : null,
-                        'compareValue' => isset($_POST["compareValue{$questionNumber}"]) ? $_POST["compareValue{$questionNumber}"] : null,
-                    ];
-                    $questionNumber++;
-                }
+        $questions = '';
+        $questionMap = [];
+        $questionNumber = 1;
+        foreach ($_POST as $key => $value) {
+            if (strpos($key, 'question') !== false) {
+                $questions .= '(' . $value . '), ';
+                $compare = $_POST["compare{$questionNumber}"] ?? null;  // Use null coalescing operator for cleaner syntax
+                $compareValue = $_POST["compareValue{$questionNumber}"] ?? null;  // Use null coalescing operator for cleaner syntax
+                $questionMap[$questionNumber] = [
+                    'question' => $value,
+                    'compare' => $compare,
+                    'compareValue' => $compareValue,
+                ];
+                $questionNumber++;
             }
-            $questions = rtrim($questions, ', ');
+        }
+        $questions = rtrim($questions, ', ');
+        if (!empty($questions)) {
             echo "<h2>Questions:</h2>";
             echo "<p>" . htmlspecialchars($questions) . "</p>";
         }
 
         $sheetData = '';
-        if (is_array($valuesWithFormulas)) {
-            foreach ($valuesWithFormulas as $rowIndex => $row) {
-                if (is_array($row)) {
-                    foreach ($row as $cellIndex => $cell) {
-                        $sheetData .= "Row " . ($rowIndex + 1) . " Cell " . ($cellIndex + 1) . "\n";
-                        $sheetData .= "Formula: " . $cell . "\n";
-                        $sheetData .= "Result: " . $valuesWithValues[$rowIndex][$cellIndex] . "\n\n";
-                    }
-                }
+        foreach ($valuesWithFormulas as $rowIndex => $row) {
+            foreach ($row as $cellIndex => $cell) {
+                $sheetData .= "Row " . ($rowIndex + 1) . " Cell " . ($cellIndex + 1) . "\n";
+                $sheetData .= "Formula: " . $cell . "\n";
+                $sheetData .= "Result: " . $valuesWithValues[$rowIndex][$cellIndex] . "\n\n";
             }
         }
         $prompt .= ' ' . $questions . ' ' . $sheetData;
 
-        echo "<h2>Google Sheets Data:</h2>";
-        echo "<pre>" . htmlspecialchars($sheetData) . "</pre>";
+        if (!empty($sheetData)) {
+            echo "<h2>Google Sheets Data:</h2>";
+            echo "<pre>" . htmlspecialchars($sheetData) . "</pre>";
+        }
 
+        // API Key, Model name, and related configurations
         $apiKey = "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";
         $model = "text-davinci-003";
         $temperature = 0.7;
-        $maxTokens = 256;
+        $maxTokens = 20000;
         $topP = 1;
         $frequencyPenalty = 0;
         $presencePenalty = 0;
@@ -117,34 +120,43 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
             echo "<p>Chat GPT Response:</p>";
             echo "<p>$generatedText</p>";
 
-            if (is_array($questionMap)) {
-                preg_match_all('/Question (\d+): (?:Does|Is)[^.]+? Score: (\d+)/', $generatedText, $matches);
-                $scores = array_combine($matches[1], $matches[2]);
-                foreach ($questionMap as $questionNumber => $questionData) {
-                    if (isset($scores[$questionNumber]) && isset($questionData['operator']) && isset($questionData['compareValue'])) {
-                        $operator = $questionData['operator'];
-                        $compareValue = (int)$questionData['compareValue'];
-                        $score = (int)$scores[$questionNumber];
+            $scoreData = array();
+            preg_match_all('/"questionID(\d+)": \{"score": (\d+),/', $jsonResponse['choices'][0]['text'], $matches);
 
-                        $pass = false;
-                        if ($operator === 'greater_than') {
-                            $pass = $score > $compareValue;
-                        } elseif ($operator === 'less_than') {
-                            $pass = $score < $compareValue;
-                        } elseif ($operator === 'equal_to') {
-                            $pass = $score == $compareValue;
-                        }
+            foreach ($matches[1] as $index => $questionNumber) {
+                $score = (int) $matches[2][$index];
+                $scoreData[$questionNumber] = $score;
+            }
 
-                        echo "<p>Question {$questionNumber}: " . ($pass ? "PASS" : "FAIL") . "</p>";
-                        echo "<p>Score for Question {$questionNumber}: {$score}</p>";
-                    }
+            $output = array();
+            foreach ($questionMap as $questionNumber => $questionData) {
+                if (isset($scoreData[$questionNumber]) && isset($questionData['compare']) && isset($questionData['compareValue'])) {
+                    $compare = $questionData['compare'];
+                    $compareValue = (int) $questionData['compareValue'];
+                    $score = $scoreData[$questionNumber];
+
+                    $output["questionID{$questionNumber}"] = array(
+                        'promptScore' => $score,
+                        'jsonScore' => $jsonResponse['choices'][0]['text']["q{$questionNumber}"]["score"],
+                    );
                 }
             }
+
+            echo "<h2>Score Data:</h2>";
+            echo "<pre>" . htmlspecialchars(json_encode($output, JSON_PRETTY_PRINT)) . "</pre>";
+
+            // Save Chat GPT response as a JSON file
+            $jsonFilePath = __DIR__ . '/chat_gpt_response.json';
+            $jsonResponseTrimmed = preg_replace('/\s+/', ' ', $generatedText);
+            $jsonContent = substr($jsonResponseTrimmed, strpos($jsonResponseTrimmed, '{'));
+            file_put_contents($jsonFilePath, $jsonContent);
+            echo "<p>Chat GPT response has been saved as a JSON file: <code>$jsonFilePath</code></p>";
         } else {
             die('Error: No response generated.');
         }
 
         curl_close($ch);
+
     } else {
         echo "No Google Sheets ID found in the URL.\n";
     }
@@ -152,37 +164,67 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
     $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php';
     header('Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL));
 }
-if (is_array($questionMap)) {
-    foreach ($questionMap as $questionNumber => $questionData) {
-        if (isset($questionData['operator']) && isset($questionData['compareValue'])) {
-            $operator = $questionData['operator'];
-            $compareValue = (int)$questionData['compareValue'];
 
-            echo "<p>Compare Value for Question {$questionNumber}: {$compareValue}</p>";
+   $score = $valuesWithValues[0][0]; // assuming the score is at this position in the array
 
-            // Compare the compareValue with the score here
-            // Perform your comparison logic as needed and echo the result
-            // For example:
-            $score = 0; // Assuming you have retrieved the score for the question
-            $pass = false;
-            if ($operator === 'greater_than') {
-                $pass = $score > $compareValue;
-            } elseif ($operator === 'less_than') {
-                $pass = $score < $compareValue;
-            } elseif ($operator === 'equal_to') {
-                $pass = $score == $compareValue;
+        $operator1 = $_POST['operator1'] ?? null;  // Use null coalescing operator for cleaner syntax
+        $comparevalue1 = $_POST['comparevalue1'] ?? null;  // Use null coalescing operator for cleaner syntax
+
+        $output = array(
+            'score' => $score,
+            'operator1' => $operator1
+        );
+
+        echo "<hr>";
+        echo json_encode($output);
+        echo "<hr>";
+
+        // Load the JSON data from a file
+        $jsonFilePath = __DIR__ . '/chat_gpt_response.json';
+        $jsonString = file_get_contents($jsonFilePath);
+        $jsonData = json_decode($jsonString, true);
+
+        // Iterate over the parsed data and print the scores
+        foreach ($jsonData as $question) {
+            if (isset($question['score'])) {
+                echo "Score: " . $question['score'] . "<br>";
             }
-
-            echo "<p>Question {$questionNumber}: " . ($pass ? "PASS" : "FAIL") . "</p>";
         }
+
+echo "<hr>";
+
+
+
+
+$questionId = 1;
+while (true) {
+    $operatorKey = "operator{$questionId}";
+    $compareValueKey = "compareValue{$questionId}";
+
+    if (isset($_POST[$operatorKey]) && isset($_POST[$compareValueKey])) {
+        $operator = $_POST[$operatorKey];
+        $compareValue = intval($_POST[$compareValueKey]);
+
+        foreach ($jsonData as $question) {
+            if (isset($question['score'])) {
+                $equation = "{$question['score']} $operator $compareValue";
+
+                if (eval("return $equation;")) {
+                    echo "PASS because {$question['score']} is {$operator} than {$compareValue}<br>";
+                } else {
+                    echo "FAIL because {$question['score']} is not {$operator} than {$compareValue}<br>";
+                }
+            }
+        }
+
+    } else {
+        // if we can't find both operatorX and compareValueX, then we break the loop
+        break;
     }
+
+    $questionId++;
 }
-echo $questions;
-echo "<hr>";
-echo $prompt;
-echo "<hr>";
-var_dump($_POST)
 
 
-
+var_dump($_POST);
 ?>

@@ -2,7 +2,13 @@
 session_start();
 
 // Set the default prompt value
-$defaultPrompt = "I want you to ACT like a High School Math Teacher. Your purpose is to look at the sheets information I have provided you and score it through 1-10 through the questions I have given you. 1 meaning the questions were not answered, and 10 meaning the student correctly answered the question. Please make sure it is accurate, and to remove points if any information is incorrect, this can be from inaccurate values, inaccurate equations. I would like you to be very strict, and base your grading on the equations and numbers  provided. As well as removing points if there is anything that doesnt belong there. Please be as strict as possible, make sure it answers the question and has ALL OF THE INFORMATION NEEDED TO GET A GOOD SCORE, ANY GIBERISH, as well AS REMOVING POINTS IF THERE IS ANY ERRORS IN THE equations/ numbers. I want you to read the equations/results and come back with a score of each question. In your response, Only look at the question if it has Parentheses  and the question inside, for example (quesiton)As a High School Math Teacher, my role is to evaluate the provided information and assign scores to the questions based on their accuracy and completeness. I will strictly adhere to the given equations and numbers, deducting points for any inaccuracies or errors. I will evaluate the questions enclosed in parentheses and provide a score ranging from 1 to 10. No additional explanations or responses will be given.  .";
+$defaultPrompt = "As an AI educator, your task is to evaluate, score, and provide feedback on students' constructed response to a core question. I will provide you with the Core question, a list of criteria questions, and the format your response must be in. 
+
+The format your response must be in is a JSON Object. Each criteria question will be indexed within the response object. Each criterion will be presented to you in the following format: << questionID# || question >>. Your response to each criterion question must include three parts: questionID#, score, and score justification. This exercise necessitates your in-depth understanding and assessment capabilities, in order to provide meaningful feedback that aids the student's growth and understanding.
+
+Criterion question scores must be a number between 0-10. Ten represents the best score. The score justification must be a clear and concise statement. No more than a few sentences in length. 
+
+The core question is, How can students use Google Docs, Sheets, and Slides to improve their productivity and organization skills in school and beyond?.  .";
 
 // Check if the form is submitted to update the prompt
 if (isset($_POST['update_prompt'])) {
@@ -109,8 +115,8 @@ if (isset($_GET['url']) && isset($_GET['name'])) {
                         <div id="questions">
                             <input type="text" name="question1" placeholder="Enter question 1" required><br>
                             <select name="operator1">
-                                <option value="<">Greater than< </option>
-                                <option value=">">Less than> </option>
+                                <option value="<">Less Than< </option>
+                                <option value=">">Greater than </option>
                                 <option value="=">Equal to = </option>
                             </select>
                            <select name="compareValue1" placeholder="Comparison Value" width="100px">
@@ -148,22 +154,25 @@ $(document).ready(function() {
 
                 </div>
             </section>
-        </div>
+        </div><div
 
         <section id="contact">
-            <div class="inner">
-                <div class="field half">
-                    <label for="name">Entire URL:</label>
-                    <input type="text" name="name" id="name" value="https://docs.google.com/spreadsheets/d/<?= isset($_GET['url']) ? $_GET['url'] : '' ?>/edit" />
-                </div><br>
+    <div class="inner">
+        <div class="field half">
+            <label for="name">Entire URL:</label>
+            <input type="text" name="url" id="name" value="<?= isset($_GET['url']) ? $_GET['url'] : '' ?>" />
+        </div></div>
+        
+        <ul class="actions">
+            <li>
+                <form action="https://docs.google.com/spreadsheets/d/<?= isset($_GET['url']) ? $_GET['url'] : '' ?>/edit" method="GET" target="_blank">
+                    <input type="submit" value="Go to SHEETS" class="primary" />
+                </form>
+            </li>
+        </ul>
+    </div>
+</section>
 
-                <ul class="actions">
-                    <li>
-                        <form action="https://docs.google.com/spreadsheets/d/<?= isset($_GET['url']) ? $_GET['url'] : '' ?>/edit" method="GET" target="_blank">
-                            <input type="submit" value="Go to SHEETS" class="primary" />
-                        </form>
-                    </li>
-                </ul>
 
                 <footer id="footer">
                     <div class="inner">
