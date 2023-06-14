@@ -74,51 +74,56 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
             echo "<pre>" . htmlspecialchars($sheetData) . "</pre>";
         }
 
-        // API Key, Model name, and related configurations
-        $apiKey = "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";
-        $model = "text-davinci-003";
-        $temperature = 0.7;
-        $maxTokens = 256;
-        $topP = 1;
-        $frequencyPenalty = 0;
-        $presencePenalty = 0;
+       $apiKey = "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";
+$model = "gpt-3.5-turbo-0613";
+$temperature = 0.7;
+$maxTokens = 256;
+$topP = 1;
+$frequencyPenalty = 0;
+$presencePenalty = 0;
 
-        $data = array(
-            'model' => $model,
-            'prompt' => $prompt,
-            'temperature' => $temperature,
-            'max_tokens' => $maxTokens,
-            'top_p' => $topP,
-            'frequency_penalty' => $frequencyPenalty,
-            'presence_penalty' => $presencePenalty
-        );
+$messages = array(
+    array("role" => "user", "content" => $prompt . ' ' . $questions . ' ' . $sheetData)
+);
 
-        $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, "https://api.openai.com/v1/completions");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer " . $apiKey));
+$data = array(
+    'model' => $model,
+    'messages' => $messages,
+    'temperature' => $temperature,
+    'max_tokens' => $maxTokens,
+    'top_p' => $topP,
+    'frequency_penalty' => $frequencyPenalty,
+    'presence_penalty' => $presencePenalty
+);
 
-        $response = curl_exec($ch);
+$ch = curl_init();
 
-        if (curl_errno($ch)) {
-            die('Error: ' . curl_error($ch));
-        }
+curl_setopt($ch, CURLOPT_URL, "https://api.openai.com/v1/chat/completions");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer " . $apiKey));
 
-        $jsonResponse = json_decode($response, true);
-        if (isset($jsonResponse['error'])) {
-            die('API Error: ' . $jsonResponse['error']['message']);
-        }
+$response = curl_exec($ch);
 
-        $generatedText = '';
+if (curl_errno($ch)) {
+    die('Error: ' . curl_error($ch));
+}
 
-        if (isset($jsonResponse['choices']) && count($jsonResponse['choices']) > 0 && isset($jsonResponse['choices'][0]['text'])) {
-            $generatedText = $jsonResponse['choices'][0]['text'];
+$jsonResponse = json_decode($response, true);
+if (isset($jsonResponse['error'])) {
+    die('API Error: ' . $jsonResponse['error']['message']);
+}
 
-            echo "<p>Chat GPT Response:</p>";
-            echo "<p>$generatedText</p>";
+$generatedText = '';
+
+if (isset($jsonResponse['choices']) && count($jsonResponse['choices']) > 0 && isset($jsonResponse['choices'][0]['message']['content'])) {
+    $generatedText = $jsonResponse['choices'][0]['message']['content'];
+
+    echo "<p>Chat GPT Response:</p>";
+    echo "<p>$generatedText</p>";
+}
 
             $scoreData = array();
             preg_match_all('/"questionID(\d+)": \{"score": (\d+),/', $jsonResponse['choices'][0]['text'], $matches);
@@ -157,13 +162,6 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
 
         curl_close($ch);
 
-    } else {
-        echo "No Google Sheets ID found in the URL.\n";
-    }
-} else {
-    $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php';
-    header('Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL));
-}
 
    $score = $valuesWithValues[0][0]; // assuming the score is at this position in the array
 
@@ -224,7 +222,7 @@ while (true) {
 
     $questionId++;
 }
-
+}
 
 var_dump($_POST);
 ?>

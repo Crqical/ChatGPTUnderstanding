@@ -47,7 +47,7 @@ $questions = rtrim($questions, ', ');
 // Collect the prompt from POST
 $prompt = isset($_POST['prompt']) ? $_POST['prompt'] . ' ' . $questions : '';
 
-$apiKey = "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";
+$apiKey = "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";
 $model = "text-davinci-003";
 $temperature = 0.7;
 $maxTokens = 256;

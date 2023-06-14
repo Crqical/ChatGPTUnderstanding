@@ -5,10 +5,7 @@ session_start();
 $defaultPrompt = "As an AI educator, your task is to evaluate, score, and provide feedback on students' constructed response to a core question. I will provide you with the Core question, a list of criteria questions, and the format your response must be in. 
 
 The format your response must be in is a JSON Object. Each criteria question will be indexed within the response object. Each criterion will be presented to you in the following format: << questionID# || question >>. Your response to each criterion question must include three parts: questionID#, score, and score justification. This exercise necessitates your in-depth understanding and assessment capabilities, in order to provide meaningful feedback that aids the student's growth and understanding.
-
-Criterion question scores must be a number between 0-10. Ten represents the best score. The score justification must be a clear and concise statement. No more than a few sentences in length. 
-
-The core question is, How can students use Google Docs, Sheets, and Slides to improve their productivity and organization skills in school and beyond?.  .";
+  .";
 
 // Check if the form is submitted to update the prompt
 if (isset($_POST['update_prompt'])) {
