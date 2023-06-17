@@ -75,7 +75,7 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
         }
 
 $apiKey = "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";
-$model = "gpt-3.5-turbo-16k";
+$model = "gpt-3.5-turbo-0613";
 $temperature = 0.7;
 $maxTokens = 3600; // Modify this as needed
 $topP = 1;
