@@ -105,7 +105,7 @@ if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
         foreach ($results->getFiles() as $file) {
             printf("Document: %s (%s)<br>", $file->getName(), $file->getId());
 
-echo "<a href='keepers.php?url=" . $file->getId() . "' class='button next'>Analyze</a>";
+echo "<a href='sheetss.php?url=" . $file->getId() . "&name=" . urlencode($file->getName()) . "&UID=1' class='button next'>Analyze</a>";
 
             // $revisions = $driveService->revisions->listRevisions($file->getId());
             // foreach ($revisions->getRevisions() as $revision) {
@@ -141,7 +141,7 @@ echo "<a href='keepers.php?url=" . $file->getId() . "' class='button next'>Analy
     } else {
         foreach ($results->getFiles() as $file) {
             printf("Sheet: %s (%s)<br>", $file->getName(), $file->getId());
-echo "<a href='sheetss.php?url=" . $file->getId() . "&name=" . urlencode($file->getName()) . "' class='button next'>Analyze</a>";
+echo "<a href='sheetss.php?url=" . $file->getId() . "&name=" . urlencode($file->getName()) . "&UID=2' class='button next'>Analyze</a>";
             echo "<hr>";
         }
     } // <- This closing brace was missing
